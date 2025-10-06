@@ -23,6 +23,7 @@
     "Back To December",
     "Bad Blood",
     "Beautiful Eyes",
+    "Beautiful Ghosts",
     "Begin Again",
     "Bejeweled",
     "Better Man",
@@ -36,11 +37,13 @@
     "Call It What You Want",
     "CANCELLED!",
     "cardigan",
+    "Carolina",
     "Cassandra",
     "Castles Crumbling",
     "champagne problems",
     "Change",
     "Chloe or Sam or Sophia or Marcus",
+    "Christmas Tree Farm",
     "Clara Bow",
     "Clean",
     "closure",
@@ -106,6 +109,7 @@
     "I Can Fix Him (No Really I Can)",
     "I Can See You",
     "I Did Something Bad",
+    "I Don't Wanna Live Forever",
     "I Forgot That You Existed",
     "I Hate It Here",
     "I Heart ?",
@@ -114,6 +118,7 @@
     "I Look in People's Windows",
     "I Think He Knows",
     "I Wish You Would",
+    "I'd Lie",
     "I'm Only Me When I'm With You",
     "If This Was A Movie",
     "illicit affairs",
@@ -173,6 +178,7 @@
     "A Place in This World",
     "Question...?",
     "Red",
+    "Renegade",
     "right where you left me (bonus track)",
     "Robin",
     "Ruin the Friendship",
@@ -209,6 +215,7 @@
     "the 1",
     "The Alchemy",
     "The Albatross",
+    "The Alcott (feat. Taylor Swift)",
     "The Archer",
     "The Best Day",
     "The Black Dog",
@@ -261,7 +268,8 @@
     "You Need To Calm Down",
     "You're Losing Me",
     "You're Not Sorry",
-    "You're on Your Own, Kid"
+    "You're on Your Own, Kid",
+    "Only The Young"
     );
 
     var lstMember = new Array();
@@ -275,6 +283,62 @@
     var totalSize;
     var finishSize;
     var finishFlag;
+
+    function saveProgress() {
+        var state = {
+            lstMember: lstMember,
+            parent: parent,
+            equal: equal,
+            rec: rec,
+            cmp1: cmp1,
+            cmp2: cmp2,
+            head1: head1,
+            head2: head2,
+            nrec: nrec,
+            numQuestion: numQuestion,
+            totalSize: totalSize,
+            finishSize: finishSize,
+            finishFlag: finishFlag
+        };
+        localStorage.setItem('swiftSorterProgress', JSON.stringify(state));
+        alert('Progress saved! You can close this page and come back later.');
+    }
+
+    function loadProgress() {
+        var saved = localStorage.getItem('swiftSorterProgress');
+        if (saved) {
+            var state = JSON.parse(saved);
+            lstMember = state.lstMember;
+            parent = state.parent;
+            equal = state.equal;
+            rec = state.rec;
+            cmp1 = state.cmp1;
+            cmp2 = state.cmp2;
+            head1 = state.head1;
+            head2 = state.head2;
+            nrec = state.nrec;
+            numQuestion = state.numQuestion;
+            totalSize = state.totalSize;
+            finishSize = state.finishSize;
+            finishFlag = state.finishFlag;
+            
+            if (finishFlag == 1) {
+                showResult();
+            } else {
+                showImage();
+            }
+            alert('Progress loaded successfully!');
+            return true;
+        }
+        return false;
+    }
+
+    function clearProgress() {
+        if (confirm('Are you sure you want to delete your saved progress and start over?')) {
+            localStorage.removeItem('swiftSorterProgress');
+            location.reload();
+        }
+    }
 
     function initList() {
         var n = 0;
@@ -416,6 +480,7 @@
             document.getElementById("battleNumber").innerHTML = str;
             showResult();
             finishFlag = 1;
+            localStorage.removeItem('swiftSorterProgress');
         }
         else {
             showImage();
@@ -444,6 +509,7 @@
         }
         str += "<\/table>";
         document.getElementById("resultField").innerHTML = str;
+        document.getElementById("saveLoadButtons").style.display = "none";
     }
 
     function showImage() {
@@ -462,6 +528,21 @@
         var str = namMember[n];
         return str;
     }
+
+    window.onload = function() {
+        var hasSaved = localStorage.getItem('swiftSorterProgress');
+        if (hasSaved) {
+            if (confirm('Found saved progress! Would you like to continue where you left off?')) {
+                loadProgress();
+            } else {
+                initList();
+                showImage();
+            }
+        } else {
+            initList();
+            showImage();
+        }
+    };
     </script>
     <style type="text/css">
         #mainTable{
@@ -505,6 +586,26 @@
         margin: 0 auto;
         font-family: 'Josefin Slab', serif;
         }
+        .button {
+        background-color: #5b17ba;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Josefin Slab', serif;
+        font-size: 16px;
+        margin: 5px;
+        }
+        .button:hover {
+        background-color: #945ce3;
+        }
+        .button.danger {
+        background-color: #c41e3a;
+        }
+        .button.danger:hover {
+        background-color: #e63946;
+        }
     </style>
 </head>
 <body text="#000000" bgcolor="#ffffff" link="#0099ff" vlink="#0099ff" alink="#0099ff">
@@ -514,9 +615,13 @@
         <br/>
         <b>Welcome to the Taylor Swift song sorter.</b>
         <br/>
-        Pick what song you like better in each battle to get an accurate list of your favourite songs. Only album official songs are included. Note: hitting 'no opinion' or 'I like both' frequently will negatively affect your results. Note: If you make a mistake DO NOT click backspace unless you find extremely necessary. It will erase all your progress.
+        Pick what song you like better in each battle to get an accurate list of your favourite songs. Only album official songs are included. Note: hitting 'no opinion' or 'I like both' frequently will negatively affect your results.
         <br/>
         <br/>
+        <div id="saveLoadButtons">
+            <button class="button" onclick="saveProgress()">Save Progress</button>
+            <button class="button danger" onclick="clearProgress()">Start Over</button>
+        </div>
     </center>
     </p>
     <table id="mainTable" align="center">
@@ -549,15 +654,11 @@
     <div id="resultField" style="text-align: center;">
         <br>
     </div>
-    <script type="text/javascript">
-    initList();
-    showImage();
-    </script>
     <p class="other">
     <center>
         <small>
             <br/>
-            Modified Taylor Swift Song Sorter (Alphabetical Order)
+            Taylor Swift Song Sorter (Alphabetical Order)
         </small>
     </center>
     </p>
