@@ -283,7 +283,6 @@
     var totalSize;
     var finishSize;
     var finishFlag;
-    var history = new Array();
 
     function saveProgress() {
         var state = {
@@ -299,8 +298,7 @@
             numQuestion: numQuestion,
             totalSize: totalSize,
             finishSize: finishSize,
-            finishFlag: finishFlag,
-            history: history
+            finishFlag: finishFlag
         };
         localStorage.setItem('swiftSorterProgress', JSON.stringify(state));
         alert('Progress saved! You can close this page and come back later.');
@@ -323,7 +321,6 @@
             totalSize = state.totalSize;
             finishSize = state.finishSize;
             finishFlag = state.finishFlag;
-            history = state.history || [];
             
             if (finishFlag == 1) {
                 showResult();
@@ -393,27 +390,6 @@
     function sortList(flag) {
         var i;
         var str;
-
-        // Save state before making changes (for undo)
-        var stateBefore = {
-            lstMember: JSON.parse(JSON.stringify(lstMember)),
-            parent: parent.slice(),
-            equal: equal.slice(),
-            rec: rec.slice(),
-            cmp1: cmp1,
-            cmp2: cmp2,
-            head1: head1,
-            head2: head2,
-            nrec: nrec,
-            numQuestion: numQuestion,
-            finishSize: finishSize
-        };
-        history.push(stateBefore);
-        
-        // Keep only last 20 states to avoid memory issues
-        if (history.length > 20) {
-            history.shift();
-        }
 
         if (flag < 0) {
             rec[nrec] = lstMember[cmp1][head1];
@@ -511,28 +487,6 @@
         }
     }
 
-    function undoLastChoice() {
-        if (history.length === 0) {
-            alert('Nothing to undo!');
-            return;
-        }
-        
-        var previousState = history.pop();
-        lstMember = previousState.lstMember;
-        parent = previousState.parent;
-        equal = previousState.equal;
-        rec = previousState.rec;
-        cmp1 = previousState.cmp1;
-        cmp2 = previousState.cmp2;
-        head1 = previousState.head1;
-        head2 = previousState.head2;
-        nrec = previousState.nrec;
-        numQuestion = previousState.numQuestion;
-        finishSize = previousState.finishSize;
-        
-        showImage();
-    }
-
     function showResult() {
         var ranking = 1;
         var sameRank = 1;
@@ -588,34 +542,6 @@
             initList();
             showImage();
         }
-        
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (finishFlag == 1) return; // Don't respond to keys after finishing
-            
-            switch(e.key) {
-                case 'ArrowLeft':
-                    sortList(-1);
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight':
-                    sortList(1);
-                    e.preventDefault();
-                    break;
-                case 'ArrowDown':
-                case ' ':
-                    sortList(0);
-                    e.preventDefault();
-                    break;
-                case 'z':
-                case 'Z':
-                    if (e.ctrlKey || e.metaKey) {
-                        undoLastChoice();
-                        e.preventDefault();
-                    }
-                    break;
-            }
-        });
     };
     </script>
     <style type="text/css">
@@ -692,12 +618,8 @@
         Pick what song you like better in each battle to get an accurate list of your favourite songs. Only album official songs are included. Note: hitting 'no opinion' or 'I like both' frequently will negatively affect your results.
         <br/>
         <br/>
-        <b>Keyboard Shortcuts:</b> Left Arrow = Left Song | Right Arrow = Right Song | Down Arrow/Space = Tie | Ctrl+Z = Undo
-        <br/>
-        <br/>
         <div id="saveLoadButtons">
             <button class="button" onclick="saveProgress()">Save Progress</button>
-            <button class="button" onclick="undoLastChoice()">Undo Last Choice</button>
             <button class="button danger" onclick="clearProgress()">Start Over</button>
         </div>
     </center>
